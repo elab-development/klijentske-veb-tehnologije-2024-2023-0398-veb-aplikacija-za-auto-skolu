@@ -10,10 +10,28 @@ export default function Courses() {
   const [courses, setCourses] = useState<Course[]>(
     load<Course[]>('courses', [])
   );
+  const [q, setQ] = useState('');
+  const [cat, setCat] = useState<'all' | 'A' | 'B'>('all');
+  const [lvl, setLvl] = useState<'all' | 'početni' | 'napredni'>('all');
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(4);
 
   useEffect(() => save('courses', courses), [courses]);
+  useEffect(() => setPage(1), [q, cat, lvl, size]);
+
+  const filtered = useMemo(() => {
+    return courses.filter((c) => {
+      const okQ =
+        c.title.toLowerCase().includes(q.toLowerCase()) ||
+        c.description.toLowerCase().includes(q.toLowerCase());
+      const okC = cat === 'all' || c.category === cat;
+      const okL = lvl === 'all' || c.level === lvl;
+      return okQ && okC && okL;
+    });
+  }, [courses, q, cat, lvl]);
+
+  const start = (page - 1) * size;
+  const pageItems = filtered.slice(start, start + size);
 
   function addCourse(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,6 +58,42 @@ export default function Courses() {
   return (
     <div className='mx-auto max-w-6xl px-3 py-6'>
       <h1 className='text-xl font-semibold mb-4'>Kursevi</h1>
+
+      <div className='rounded-2xl bg-white shadow p-4 mb-4 grid md:grid-cols-4 gap-3'>
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder='Pretraga...'
+          className='px-3 py-2 rounded-xl bg-slate-50 border border-slate-200'
+        />
+        <select
+          value={cat}
+          onChange={(e) => setCat(e.target.value as any)}
+          className='px-3 py-2 rounded-xl bg-slate-50 border border-slate-200'
+        >
+          <option value='all'>Sve kategorije</option>
+          <option value='A'>A</option>
+          <option value='B'>B</option>
+        </select>
+        <select
+          value={lvl}
+          onChange={(e) => setLvl(e.target.value as any)}
+          className='px-3 py-2 rounded-xl bg-slate-50 border border-slate-200'
+        >
+          <option value='all'>Svi nivoi</option>
+          <option value='početni'>Početni</option>
+          <option value='napredni'>Napredni</option>
+        </select>
+        <select
+          value={size}
+          onChange={(e) => setSize(Number(e.target.value))}
+          className='px-3 py-2 rounded-xl bg-slate-50 border border-slate-200'
+        >
+          <option value='4'>4 po strani</option>
+          <option value='6'>6 po strani</option>
+          <option value='8'>8 po strani</option>
+        </select>
+      </div>
 
       {user?.role === 'instructor' && (
         <div className='rounded-2xl bg-white shadow p-4 mb-6'>
@@ -84,7 +138,7 @@ export default function Courses() {
       )}
 
       <div className='grid md:grid-cols-2 gap-4'>
-        {courses.map((c) => (
+        {pageItems.map((c) => (
           <CourseCard key={c.id} course={c} />
         ))}
       </div>
