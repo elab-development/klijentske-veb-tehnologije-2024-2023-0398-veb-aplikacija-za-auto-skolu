@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { type Course } from '../types';
 import { load, save } from '../store/localStorage';
 import CourseCard from '../components/CourseCard';
+import Pagination from '../components/Pagination';
 import { useAuth } from '../context/AuthContext';
 
 export default function Courses() {
@@ -9,6 +10,8 @@ export default function Courses() {
   const [courses, setCourses] = useState<Course[]>(
     load<Course[]>('courses', [])
   );
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(4);
 
   useEffect(() => save('courses', courses), [courses]);
 
@@ -84,6 +87,15 @@ export default function Courses() {
         {courses.map((c) => (
           <CourseCard key={c.id} course={c} />
         ))}
+      </div>
+
+      <div className='mt-4'>
+        <Pagination
+          page={page}
+          total={filtered.length}
+          pageSize={size}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );
