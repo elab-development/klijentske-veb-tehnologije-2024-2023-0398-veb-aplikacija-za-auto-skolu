@@ -32,6 +32,23 @@ export default function Home() {
           <Card to='/tests' title='Testovi' icon={<FaClipboardList />} />
         </section>
       )}
+
+      {user?.role === 'instructor' && (
+        <section className='mt-6'>
+          <div className='rounded-2xl bg-white shadow p-5'>
+            <h3 className='font-semibold mb-3'>Instruktorski alati</h3>
+            <p className='text-sm text-slate-600 mb-3'>
+              Kreirajte nove kurseve ili ažurirajte postojeće (lokalno čuvanje).
+            </p>
+            <Link
+              to='/courses'
+              className='inline-block px-4 py-2 rounded-xl bg-blue-600 text-white shadow'
+            >
+              Upravljanje kursevima
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
